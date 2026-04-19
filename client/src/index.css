@@ -1,0 +1,34 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* 自定义选中行高亮 */
+.selected-row {
+  background-color: #fff7e6 !important;
+}
+
+.selected-row:hover > td {
+  background-color: #ffe7ba !important;
+}
+
+/* 卡片内段落间距 */
+.ant-card-body p {
+  margin-bottom: 8px;
+}
+
+/* 标签间距 */
+.ant-tag {
+  margin-bottom: 2px;
+}

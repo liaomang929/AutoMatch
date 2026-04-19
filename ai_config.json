@@ -1,0 +1,17 @@
+{
+  "provider": "zhipu",
+  "zhipu": {
+    "apiKey": "956c5f14336d49aa91978a5123bf4426.ZqoX0VCtWHq9p038",
+    "model": "glm-4"
+  },
+  "openai_compatible": {
+    "apiKey": "",
+    "baseUrl": "https://api.openai.com/v1",
+    "model": "gpt-4"
+  },
+  "custom": {
+    "apiKey": "",
+    "baseUrl": "",
+    "model": ""
+  }
+}

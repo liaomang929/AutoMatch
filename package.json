@@ -1,0 +1,23 @@
+{
+  "name": "automatch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "server": "node server/index.js",
+    "dev": "node server/index.js",
+    "client": "cd client && npm run dev",
+    "start": "node server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pg": "^8.20.0",
+    "puppeteer-core": "^24.41.0",
+    "zhipuai-sdk-nodejs-v4": "^0.1.12"
+  }
+}
