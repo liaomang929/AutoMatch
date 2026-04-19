@@ -1,7 +1,7 @@
 {
   "provider": "zhipu",
   "zhipu": {
-    "apiKey": "956c5f14336d49aa91978a5123bf4426.ZqoX0VCtWHq9p038",
+    "apiKey": "c3ab5960c5ec438f8890962fd7a49592.CIvfsvD0y3TIKZEV",
     "model": "glm-4"
   },
   "openai_compatible": {

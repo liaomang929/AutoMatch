@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Form, Input, Select, Button, message, Divider, Alert, Row, Col, Typography } from 'antd';
+import { Form, Input, Select, Button, message, Typography } from 'antd';
 import { SettingOutlined, CheckCircleOutlined, CloseCircleOutlined, ApiOutlined } from '@ant-design/icons';
 import { getAIConfig, saveAIConfig, testAIConnection, getAIStatus } from '../api';
 
@@ -57,10 +57,8 @@ export default function ConfigPage() {
     }
   };
 
-  // 收集当前表单值（不触发校验），用于保存和测试
   const collectFormValues = () => {
     const allValues = form.getFieldsValue(true);
-    // 确保provider字段存在
     if (!allValues.provider) allValues.provider = selectedProvider;
     return allValues;
   };
@@ -68,12 +66,10 @@ export default function ConfigPage() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // 只校验当前可见provider的字段
       const allValues = collectFormValues();
       const provider = allValues.provider || selectedProvider;
       const providerConfig = allValues[provider] || {};
-      
-      // 手动校验当前provider必填字段
+
       if (!providerConfig.apiKey) {
         message.error('请输入API Key');
         setLoading(false);
@@ -104,20 +100,18 @@ export default function ConfigPage() {
   const handleTest = async () => {
     setTesting(true);
     try {
-      // 先自动保存当前配置
       const allValues = collectFormValues();
       const provider = allValues.provider || selectedProvider;
       const providerConfig = allValues[provider] || {};
-      
+
       if (!providerConfig.apiKey) {
         message.error('请先填写API Key并保存配置');
         setTesting(false);
         return;
       }
 
-      // 自动保存后再测试
       await saveAIConfig(allValues);
-      
+
       message.loading({ content: '正在测试连接...', key: 'test', duration: 0 });
       const res = await testAIConnection();
       if (res.success) {
@@ -139,111 +133,152 @@ export default function ConfigPage() {
   };
 
   return (
-    <div style={{ maxWidth: 800 }}>
+    <div className="max-w-4xl mx-auto text-gray-800">
       {/* 状态提示 */}
-      <Alert
-        style={{ marginBottom: 16 }}
-        type={status?.configured ? 'success' : 'warning'}
-        showIcon
-        icon={status?.configured ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-        message={status?.configured 
-          ? `AI模型已配置 — 提供商: ${PROVIDER_INFO[status.provider]?.name || status.provider}，模型: ${status.model}`
-          : 'AI模型未配置，请先配置API Key后才能使用AI分析和文案生成功能'
-        }
-      />
+      <div className={'rounded-2xl border p-5 mb-6 ' + (status?.configured ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200')}>
+        <div className="flex items-start space-x-4">
+          <div className={'p-2 rounded-lg ' + (status?.configured ? 'bg-emerald-100' : 'bg-amber-100')}>
+            {status?.configured ? <CheckCircleOutlined className="text-emerald-600 text-lg" /> : <CloseCircleOutlined className="text-amber-600 text-lg" />}
+          </div>
+          <div className="flex-1">
+            <h3 className={'text-lg font-semibold ' + (status?.configured ? 'text-emerald-800' : 'text-amber-800')}>
+              {status?.configured ? 'AI模型已配置' : 'AI模型未配置'}
+            </h3>
+            <p className={(status?.configured ? 'text-emerald-700' : 'text-amber-700')}>
+              {status?.configured
+                ? '提供商: ' + (PROVIDER_INFO[status.provider]?.name || status.provider) + '，模型: ' + (status.model || '')
+                : '请先配置API Key后才能使用AI分析和文案生成功能'}
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <Card title={<span><SettingOutlined /> 模型配置</span>}>
-        <Form form={form} layout="vertical">
-          {/* 选择提供商 */}
-          <Form.Item name="provider" label="模型提供商">
-            <Select 
-              onChange={handleProviderChange}
-              size="large"
-            >
-              {Object.entries(PROVIDER_INFO).map(([key, info]) => (
-                <Option key={key} value={key}>
-                  <div>
-                    <strong>{info.name}</strong>
-                    <br />
-                    <Text type="secondary" style={{ fontSize: 12 }}>{info.desc}</Text>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <SettingOutlined className="text-blue-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">模型配置</h2>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <Form form={form} layout="vertical" className="space-y-6">
+
+            {/* 选择提供商 */}
+            <Form.Item name="provider" label="模型提供商">
+              <Select onChange={handleProviderChange} size="large">
+                {Object.entries(PROVIDER_INFO).map(([key, info]) => (
+                  <Option key={key} value={key}>
+                    <div>
+                      <strong>{info.name}</strong>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 12 }}>{info.desc}</Text>
+                    </div>
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <hr className="my-6 border-gray-200" />
+
+            {/* 智谱AI配置 */}
+            {selectedProvider === 'zhipu' && (
+              <>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-blue-600 text-lg">ℹ️</div>
+                    <div className="text-blue-800">
+                      智谱AI是国内大模型服务商，访问 <a href="https://open.bigmodel.cn" className="text-blue-600 hover:underline">https://open.bigmodel.cn</a> 注册获取API Key
+                    </div>
                   </div>
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+                </div>
+                <Form.Item name={['zhipu', 'apiKey']} label="API Key">
+                  <Input.Password placeholder="请输入智谱API Key" size="large" />
+                </Form.Item>
+                <Form.Item name={['zhipu', 'model']} label="模型">
+                  <Select placeholder="请选择模型" size="large">
+                    {PROVIDER_INFO.zhipu.models.map(m => (
+                      <Option key={m} value={m}>{m}</Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </>
+            )}
 
-          <Divider />
+            {/* OpenAI兼容接口配置 */}
+            {selectedProvider === 'openai_compatible' && (
+              <>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-blue-600 text-lg">ℹ️</div>
+                    <div className="text-blue-800">
+                      支持任何OpenAI兼容的API，如DeepSeek、通义千问、Moonshot等
+                    </div>
+                  </div>
+                </div>
+                <Form.Item name={['openai_compatible', 'apiKey']} label="API Key">
+                  <Input.Password placeholder="请输入API Key" size="large" />
+                </Form.Item>
+                <Form.Item name={['openai_compatible', 'baseUrl']} label="Base URL">
+                  <Input placeholder="https://api.openai.com/v1" size="large" />
+                </Form.Item>
+                <Form.Item name={['openai_compatible', 'model']} label="模型名称">
+                  <Input placeholder="如: gpt-4, deepseek-chat, qwen-turbo 等" size="large" />
+                </Form.Item>
+              </>
+            )}
 
-          {/* 智谱AI配置 */}
-          {selectedProvider === 'zhipu' && (
-            <>
-              <Alert style={{ marginBottom: 16 }} type="info" message="智谱AI是国内大模型服务商，访问 https://open.bigmodel.cn 注册获取API Key" showIcon />
-              <Form.Item name={['zhipu', 'apiKey']} label="API Key">
-                <Input.Password placeholder="请输入智谱API Key" size="large" />
-              </Form.Item>
-              <Form.Item name={['zhipu', 'model']} label="模型">
-                <Select placeholder="请选择模型" size="large">
-                  {PROVIDER_INFO.zhipu.models.map(m => (
-                    <Option key={m} value={m}>{m}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </>
-          )}
+            {/* 自定义接口配置 */}
+            {selectedProvider === 'custom' && (
+              <>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-blue-600 text-lg">ℹ️</div>
+                    <div className="text-blue-800">
+                      自定义任意兼容OpenAI Chat Completions格式的API接口
+                    </div>
+                  </div>
+                </div>
+                <Form.Item name={['custom', 'apiKey']} label="API Key">
+                  <Input.Password placeholder="请输入API Key" size="large" />
+                </Form.Item>
+                <Form.Item name={['custom', 'baseUrl']} label="API URL">
+                  <Input placeholder="https://your-api.com/v1" size="large" />
+                </Form.Item>
+                <Form.Item name={['custom', 'model']} label="模型名称">
+                  <Input placeholder="请输入模型名称" size="large" />
+                </Form.Item>
+              </>
+            )}
 
-          {/* OpenAI兼容接口配置 */}
-          {selectedProvider === 'openai_compatible' && (
-            <>
-              <Alert style={{ marginBottom: 16 }} type="info" message="支持任何OpenAI兼容的API，如DeepSeek (https://api.deepseek.com)、通义千问 (https://dashscope.aliyuncs.com/compatible-mode/v1)、Moonshot (https://api.moonshot.cn/v1)等" showIcon />
-              <Form.Item name={['openai_compatible', 'apiKey']} label="API Key">
-                <Input.Password placeholder="请输入API Key" size="large" />
-              </Form.Item>
-              <Form.Item name={['openai_compatible', 'baseUrl']} label="Base URL">
-                <Input placeholder="https://api.openai.com/v1" size="large" />
-              </Form.Item>
-              <Form.Item name={['openai_compatible', 'model']} label="模型名称">
-                <Input placeholder="如: gpt-4, deepseek-chat, qwen-turbo 等" size="large" />
-              </Form.Item>
-            </>
-          )}
+            <hr className="my-6 border-gray-200" />
 
-          {/* 自定义接口配置 */}
-          {selectedProvider === 'custom' && (
-            <>
-              <Alert style={{ marginBottom: 16 }} type="info" message="自定义任意兼容OpenAI Chat Completions格式的API接口" showIcon />
-              <Form.Item name={['custom', 'apiKey']} label="API Key">
-                <Input.Password placeholder="请输入API Key" size="large" />
-              </Form.Item>
-              <Form.Item name={['custom', 'baseUrl']} label="API URL">
-                <Input placeholder="https://your-api.com/v1" size="large" />
-              </Form.Item>
-              <Form.Item name={['custom', 'model']} label="模型名称">
-                <Input placeholder="请输入模型名称" size="large" />
-              </Form.Item>
-            </>
-          )}
-
-          <Divider />
-
-          <Row gutter={16}>
-            <Col>
-              <Button type="primary" onClick={handleSave} loading={loading} size="large">
+            <div className="flex items-center space-x-4">
+              <Button
+                type="primary"
+                onClick={handleSave}
+                loading={loading}
+                size="large"
+                className="primary-button flex items-center space-x-2 px-6 py-3 text-lg"
+              >
                 保存配置
               </Button>
-            </Col>
-            <Col>
-              <Button 
-                icon={<ApiOutlined />} 
-                onClick={handleTest} 
-                loading={testing} 
+              <Button
+                icon={<ApiOutlined />}
+                onClick={handleTest}
+                loading={testing}
                 size="large"
+                className="secondary-button flex items-center space-x-2 px-6 py-3 text-lg"
               >
                 保存并测试连接
               </Button>
-            </Col>
-          </Row>
-        </Form>
-      </Card>
+            </div>
+
+          </Form>
+        </div>
+      </div>
     </div>
   );
 }
