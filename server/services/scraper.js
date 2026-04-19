@@ -28,6 +28,13 @@ function getChromePath() {
  * - 赔率值在 data-sp 属性中
  */
 async function scrapeMatches() {
+  // 在Vercel环境中直接返回错误，因为puppeteer无法正常工作
+  if (process.env.VERCEL) {
+    const error = new Error('抓取功能在Vercel Serverless环境中不可用。puppeteer需要Chrome浏览器环境，建议在本地运行此功能。');
+    error.code = 'VERCEL_UNSUPPORTED';
+    throw error;
+  }
+
   let browser = null;
   try {
     console.log('🌐 启动浏览器抓取500彩票网数据...');
@@ -185,6 +192,14 @@ async function scrapeMatches() {
     return matches;
   } catch (error) {
     console.error('❌ 抓取失败:', error.message);
+
+    // 在Vercel环境中提供更友好的错误信息
+    if (process.env.VERCEL) {
+      const vercelError = new Error(`抓取功能在Vercel环境中受限：${error.message}。建议在本地运行此功能。`);
+      vercelError.isVercelError = true;
+      throw vercelError;
+    }
+
     throw error;
   } finally {
     if (browser) {
