@@ -7,6 +7,11 @@ const TARGET_URL = 'https://trade.500.com/jczq/index.php?playid=312&g=2';
  * 获取Chrome可执行路径
  */
 function getChromePath() {
+  // 在Vercel环境中，使用特殊配置
+  if (process.env.VERCEL) {
+    // Vercel serverless环境中可能没有Chrome，尝试使用内置路径或返回null
+    return process.env.CHROME_PATH || '/usr/bin/chromium';
+  }
   return process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 }
 
@@ -26,19 +31,38 @@ async function scrapeMatches() {
   let browser = null;
   try {
     console.log('🌐 启动浏览器抓取500彩票网数据...');
-    
-    browser = await puppeteer.launch({
+
+    const launchOptions = {
       executablePath: getChromePath(),
       headless: 'new',
-      args: [
+      args: []
+    };
+
+    // 根据不同环境调整启动参数
+    if (process.env.VERCEL) {
+      // Vercel serverless环境需要特殊配置
+      console.log('🔄 在Vercel环境中使用特殊配置');
+      launchOptions.args = [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process',
+        '--no-zygote'
+      ];
+    } else {
+      // 本地环境配置
+      launchOptions.args = [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-blink-features=AutomationControlled',
         '--disable-features=NetworkService',
         '--proxy-server="direct://"',
         '--proxy-bypass-list=*'
-      ]
-    });
+      ];
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     
