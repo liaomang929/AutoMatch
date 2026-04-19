@@ -46,7 +46,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 AutoMatch 后端服务已启动: http://localhost:${PORT}`);
-  console.log(`📁 数据存储目录: ${dataDir}`);
-});
+// 如果是直接运行（node server/index.js），则启动服务器
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 AutoMatch 后端服务已启动: http://localhost:${PORT}`);
+    console.log(`📁 数据存储目录: ${dataDir}`);
+  });
+}
+
+module.exports = app;

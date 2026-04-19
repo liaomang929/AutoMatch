@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASE_DIR = process.env.DATA_DIR || path.join(require('os').homedir(), 'Desktop', 'AutoMatch');
+// 在Vercel环境中使用/tmp目录，否则使用配置的目录或默认桌面目录
+const BASE_DIR = process.env.DATA_DIR ||
+  (process.env.VERCEL ? '/tmp/AutoMatch' : path.join(require('os').homedir(), 'Desktop', 'AutoMatch'));
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
