@@ -17,6 +17,18 @@
     {
       "src": "/api/(.*)",
       "dest": "/api"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/$1"
     }
-  ]
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/client/index.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
