@@ -23,16 +23,19 @@ export default function MatchDataPage() {
       console.error('加载数据失败', e);
     }
   };
-
+  
   const handleScrape = async () => {
     setLoading(true);
+    // 先清空旧数据
+    setMatches([]);
+    setSelected([]);
     try {
       message.loading({ content: '正在抓取500彩票网数据，请稍候...', key: 'scrape', duration: 0 });
       const res = await scrapeMatches();
       message.success({ content: `成功抓取 ${res.count} 场比赛`, key: 'scrape' });
       const scrapedMatches = res.data || [];
       setMatches(scrapedMatches);
-      // 仅刷新selected数据，不覆盖matches
+      // 刷新selected数据
       try {
         const matchRes = await getMatches(date);
         setSelected(matchRes.data?.selected || []);
@@ -41,6 +44,8 @@ export default function MatchDataPage() {
       }
     } catch (e) {
       message.error({ content: `抓取失败: ${e.message}`, key: 'scrape' });
+      // 抓取失败时恢复原数据
+      loadData();
     } finally {
       setLoading(false);
     }
@@ -131,44 +136,42 @@ export default function MatchDataPage() {
   return (
     <div className="space-y-6">
       {/* 统计与操作卡片 */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-gray-50 rounded-xl p-5">
-            <div className="text-sm font-medium text-gray-500 mb-1">今日比赛总数</div>
-            <div className="text-3xl font-semibold text-gray-900">{matches.length}<span className="text-lg text-gray-400 ml-1">场</span></div>
+      <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '20px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 20 }}>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 6 }}>今日比赛总数</div>
+            <div style={{ fontSize: 28, fontWeight: 500, color: 'rgba(255,255,255,0.88)' }}>{matches.length}<span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>场</span></div>
           </div>
-          <div className="bg-blue-50 rounded-xl p-5">
-            <div className="text-sm font-medium text-blue-600 mb-1">已选重点比赛</div>
-            <div className="text-3xl font-semibold text-blue-700">{selected.length}<span className="text-lg text-blue-500 ml-1">场</span></div>
+          <div style={{ background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 12, padding: '14px 18px' }}>
+            <div style={{ fontSize: 12, color: '#a5b4fc', marginBottom: 6 }}>已选重点比赛</div>
+            <div style={{ fontSize: 28, fontWeight: 500, color: '#c7d2fe' }}>{selected.length}<span style={{ fontSize: 14, color: '#a5b4fc', marginLeft: 4 }}>场</span></div>
           </div>
-          <div className="bg-amber-50 rounded-xl p-5">
-            <div className="text-sm font-medium text-amber-600 mb-1">推荐选择</div>
-            <div className="text-3xl font-semibold text-amber-700">{getRecommendCount()}<span className="text-lg text-amber-500 ml-1">场</span></div>
+          <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 12, padding: '14px 18px' }}>
+            <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 6 }}>推荐选择</div>
+            <div style={{ fontSize: 28, fontWeight: 500, color: '#fde68a' }}>{getRecommendCount()}<span style={{ fontSize: 14, color: '#fbbf24', marginLeft: 4 }}>场</span></div>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button
             onClick={handleScrape}
             disabled={loading}
-            className="primary-button flex items-center space-x-2"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.8)', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1, fontSize: 14 }}
           >
             <DownloadOutlined />
             <span>{loading ? '抓取中...' : '抓取今日比赛数据'}</span>
           </button>
-
           <button
             onClick={handleAutoSelect}
-            className="secondary-button flex items-center space-x-2"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14 }}
           >
             <StarOutlined />
             <span>智能推荐</span>
           </button>
-
           <button
             onClick={handleSave}
             disabled={saving || selected.length === 0}
-            className="bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', cursor: saving || selected.length === 0 ? 'not-allowed' : 'pointer', opacity: saving || selected.length === 0 ? 0.5 : 1, fontSize: 14, fontWeight: 500 }}
           >
             <CheckCircleOutlined />
             <span>{saving ? '保存中...' : '保存选择'}</span>
@@ -176,12 +179,10 @@ export default function MatchDataPage() {
         </div>
 
         {selected.length > 0 && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-            <div className="flex items-center text-blue-700">
-              <span className="text-lg mr-2">💡</span>
-              <p className="text-sm">
-                已选 <span className="font-semibold">{selected.length}</span> 场（建议选 <span className="font-semibold">{getRecommendCount()}</span> 场），点击「保存选择」后可在「选场预测」中录入预测
-              </p>
+          <div style={{ marginTop: 16, padding: '10px 14px', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#a5b4fc' }}>
+              <span>💡</span>
+              <span>已选 <strong>{selected.length}</strong> 场（建议选 <strong>{getRecommendCount()}</strong> 场），点击「保存选择」后可在「选场预测」中录入预测</span>
             </div>
           </div>
         )}
@@ -189,10 +190,10 @@ export default function MatchDataPage() {
 
       {/* 比赛卡片网格 */}
       {matches.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <div className="text-5xl mb-4">⚽</div>
-          <h3 className="text-lg font-medium text-gray-700 mb-2">暂无比赛数据</h3>
-          <p className="text-gray-500 mb-6">点击上方「抓取今日比赛数据」获取最新赛事信息</p>
+        <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '48px 24px', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⚽</div>
+          <h3 style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>暂无比赛数据</h3>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>点击上方「抓取今日比赛数据」获取最新赛事信息</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -201,109 +202,105 @@ export default function MatchDataPage() {
             return (
               <div
                 key={match.matchId}
-                className={`bg-white rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
-                  isSelected
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-100 hover:border-gray-300'
-                }`}
+                style={{
+                  borderRadius: 12,
+                  border: isSelected ? '2px solid #818cf8' : '1px solid rgba(255,255,255,0.1)',
+                  background: isSelected ? 'rgba(129,140,248,0.18)' : 'rgba(255,255,255,0.05)',
+                  boxShadow: isSelected ? '0 0 0 1px rgba(129,140,248,0.3), inset 0 0 20px rgba(129,140,248,0.08)' : 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.25)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  }
+                }}
               >
                 <div className="p-5">
                   {/* 头部：编号、赛事、让步、时间 */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center flex-wrap gap-1.5">
-                      <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded">
-                        #{match.matchId}
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                    <span style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: 11, padding: '2px 8px', borderRadius: 4 }}>
+                      #{match.matchId}
+                    </span>
+                    <span style={{ background: 'rgba(251,146,60,0.2)', color: '#fb923c', fontSize: 11, padding: '2px 8px', borderRadius: 4 }}>
+                      {match.league || '未知赛事'}
+                    </span>
+                    {match.handicapLine && (
+                      <span style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontSize: 11, padding: '2px 8px', borderRadius: 4 }}>
+                        让步: {match.handicapLine}
                       </span>
-                      <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded">
-                        {match.league || '未知赛事'}
-                      </span>
-                      {match.handicapLine && (
-                        <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded">
-                          让步: {match.handicapLine}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-400 font-medium">
-                        {match.matchTime || '时间待定'}
-                      </span>
-                    </div>
+                    )}
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                      {match.matchTime || '时间待定'}
+                    </span>
                   </div>
 
                   {/* 核心信息：对阵双方 */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-lg font-semibold text-gray-900">{match.homeTeam || '主队'}</div>
-                      <div className="text-xs text-gray-400 px-2">VS</div>
-                      <div className="text-lg font-semibold text-gray-900">{match.awayTeam || '客队'}</div>
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{match.homeTeam || '主队'}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', padding: '0 8px' }}>VS</div>
+                      <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{match.awayTeam || '客队'}</div>
                     </div>
                   </div>
 
                   {/* 数据层：赔率 */}
-                  <div className="mb-6">
-                    <div className="grid grid-cols-3 gap-2 mb-3">
-                      <div className="bg-red-50 rounded-lg p-3 text-center">
-                        <div className="text-xs text-gray-500 mb-1">胜</div>
-                        <div className="text-lg font-semibold tabular-nums text-red-600">
-                          {match.oddsWin || '-'}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginBottom: 6 }}>
+                      {[['胜', match.oddsWin, '#f87171', 'rgba(239,68,68,0.12)'],
+                        ['平', match.oddsDraw, '#c084fc', 'rgba(168,85,247,0.12)'],
+                        ['负', match.oddsLoss, '#60a5fa', 'rgba(59,130,246,0.12)']].map(([label, odds, color, bg]) => (
+                        <div key={label} style={{ background: bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{label}</div>
+                          <div style={{ fontSize: 15, fontWeight: 500, color }}>{odds || '-'}</div>
                         </div>
-                      </div>
-                      <div className="bg-purple-50 rounded-lg p-3 text-center">
-                        <div className="text-xs text-gray-500 mb-1">平</div>
-                        <div className="text-lg font-semibold tabular-nums text-purple-600">
-                          {match.oddsDraw || '-'}
-                        </div>
-                      </div>
-                      <div className="bg-blue-50 rounded-lg p-3 text-center">
-                        <div className="text-xs text-gray-500 mb-1">负</div>
-                        <div className="text-lg font-semibold tabular-nums text-blue-600">
-                          {match.oddsLoss || '-'}
-                        </div>
-                      </div>
+                      ))}
                     </div>
-
-                    {/* 让球赔率（如果有） */}
                     {(match.handicapWin || match.handicapDraw || match.handicapLoss) && (
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-red-50/50 rounded-lg p-2 text-center">
-                          <div className="text-xs text-gray-500 mb-1">让胜</div>
-                          <div className="text-sm font-medium tabular-nums text-red-500">
-                            {match.handicapWin || '-'}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+                        {[['让胜', match.handicapWin, '#4ade80', 'rgba(34,197,94,0.08)'],
+                          ['让平', match.handicapDraw, '#fb923c', 'rgba(251,146,60,0.08)'],
+                          ['让负', match.handicapLoss, '#22d3ee', 'rgba(6,182,212,0.08)']].map(([label, odds, color, bg]) => (
+                          <div key={label} style={{ background: bg, borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
+                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 2 }}>{label}</div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color }}>{odds || '-'}</div>
                           </div>
-                        </div>
-                        <div className="bg-purple-50/50 rounded-lg p-2 text-center">
-                          <div className="text-xs text-gray-500 mb-1">让平</div>
-                          <div className="text-sm font-medium tabular-nums text-purple-500">
-                            {match.handicapDraw || '-'}
-                          </div>
-                        </div>
-                        <div className="bg-blue-50/50 rounded-lg p-2 text-center">
-                          <div className="text-xs text-gray-500 mb-1">让负</div>
-                          <div className="text-sm font-medium tabular-nums text-blue-500">
-                            {match.handicapLoss || '-'}
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     )}
                   </div>
 
                   {/* 操作层 */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                     <div>
                       {isSelected ? (
-                        <span className="inline-flex items-center text-sm font-medium text-blue-700 bg-blue-100 px-3 py-1.5 rounded-full">
-                          <CheckCircleOutlined className="mr-1.5" />
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500, color: '#a5b4fc', background: 'rgba(129,140,248,0.15)', padding: '4px 10px', borderRadius: 20 }}>
+                          <CheckCircleOutlined />
                           已选为重点
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-500">未选择</span>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>未选择</span>
                       )}
                     </div>
                     <button
                       onClick={() => toggleSelect(match)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                        isSelected
-                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 8,
+                        border: isSelected ? '1px solid rgba(129,140,248,0.4)' : '1px solid rgba(255,255,255,0.15)',
+                        background: isSelected ? 'rgba(129,140,248,0.15)' : 'rgba(255,255,255,0.07)',
+                        color: isSelected ? '#a5b4fc' : 'rgba(255,255,255,0.6)',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                      }}
                     >
                       {isSelected ? '取消选择' : '选择为重点'}
                     </button>

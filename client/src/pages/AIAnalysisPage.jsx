@@ -33,15 +33,13 @@ export default function AIAnalysisPage() {
       const matchRes = await getMatches(date);
       const rawMatches = matchRes.data?.raw || [];
       let savedSelected = matchRes.data?.selected || [];
-      
-      // 用 raw matches 补全 selected 中缺失的字段
       if (savedSelected.length > 0) {
         savedSelected = savedSelected.map(sel => {
           if (sel.league && sel.homeTeam) return sel;
           const rawMatch = rawMatches.find(m => m.matchId === sel.matchId);
           if (rawMatch) {
-            return { 
-              ...sel, 
+            return {
+              ...sel,
               league: rawMatch.league || sel.league || '未知赛事',
               homeTeam: rawMatch.homeTeam || sel.homeTeam || '',
               awayTeam: rawMatch.awayTeam || sel.awayTeam || '',
@@ -55,7 +53,6 @@ export default function AIAnalysisPage() {
         });
       }
       setSelected(savedSelected);
-      
       const analysisRes = await getAnalyses(date);
       setAnalyses(analysisRes.data || []);
     } catch (e) {
@@ -64,27 +61,21 @@ export default function AIAnalysisPage() {
   };
 
   const handleBatchGenerate = async () => {
-    if (!aiConfigured) {
-      message.error('请先在"模型配置"中配置AI模型和API Key');
-      return;
-    }
-    if (selected.length === 0) {
-      message.warning('请先在"选场预测"中选择重点比赛');
-      return;
-    }
+    if (!aiConfigured) { message.error('请先在"模型配置"中配置AI模型和API Key'); return; }
+    if (selected.length === 0) { message.warning('请先在"选场预测"中选择重点比赛'); return; }
     setLoading(true);
     setBatchResults(null);
     try {
-      message.loading({ content: '正在批量生成AI分析，请稍候...', key: 'ai', duration: 0 });
+      message.loading({ content: '正在批量生成球之见逻辑分析，请稍候...', key: 'ai', duration: 0 });
       const res = await batchGenerateAnalysis(date);
       const results = res.data || [];
+      setBatchResults(results);
       const successCount = results.filter(r => !r.error).length;
       const failCount = results.filter(r => r.error).length;
-      setBatchResults(results);
-      if (failCount > 0) {
-        message.warning({ content: `完成: ${successCount}场成功, ${failCount}场失败`, key: 'ai' });
-      } else {
+      if (failCount === 0) {
         message.success({ content: `成功生成 ${successCount} 场分析`, key: 'ai' });
+      } else {
+        message.warning({ content: `生成完成：${successCount} 场成功，${failCount} 场失败`, key: 'ai' });
       }
       loadData();
     } catch (e) {
@@ -97,7 +88,7 @@ export default function AIAnalysisPage() {
   const handleSaveEdit = async (matchId) => {
     try {
       await updateAnalysis(date, matchId, editContent);
-      message.success('分析已更新');
+      message.success('分析已保存');
       setEditingId(null);
       loadData();
     } catch (e) {
@@ -118,30 +109,22 @@ export default function AIAnalysisPage() {
     });
   };
 
-  const getMatchInfo = (matchId) => {
-    return selected.find(m => m.matchId === matchId) || {};
-  };
-
-  const getAnalysis = (matchId) => {
-    return analyses.find(a => a.matchId === matchId) || null;
-  };
-
-  const confidenceMap = { 1: '⭐', 2: '⭐⭐', 3: '⭐⭐⭐', 4: '⭐⭐⭐⭐', 5: '⭐⭐⭐⭐⭐' };
+  const getMatchInfo = (matchId) => selected.find(m => m.matchId === matchId) || {};
+  const getAnalysis = (matchId) => analyses.find(a => a.matchId === matchId) || null;
 
   return (
-    <div className="space-y-6">
-      {/* AI配置状态提示 */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* AI未配置提示 */}
       {!aiConfigured && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-          <div className="flex items-start space-x-4">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <SettingOutlined className="text-amber-600 text-lg" />
+        <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 12, padding: '14px 18px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ padding: '6px 8px', background: 'rgba(251,191,36,0.12)', borderRadius: 8, flexShrink: 0 }}>
+              <SettingOutlined style={{ color: '#fbbf24', fontSize: 15 }} />
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-amber-800 mb-1">AI模型未配置</h3>
-              <p className="text-amber-700">
-                请先在左侧菜单「模型配置」中配置AI模型和API Key，才能使用AI分析功能。
-              </p>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#fde68a', marginBottom: 4 }}>AI模型未配置</div>
+              <div style={{ fontSize: 13, color: 'rgba(251,191,36,0.65)' }}>请先在左侧菜单「模型配置」中配置AI模型和API Key，才能使用AI分析功能。</div>
             </div>
           </div>
         </div>
@@ -149,62 +132,52 @@ export default function AIAnalysisPage() {
 
       {/* 批量生成失败提示 */}
       {batchResults && batchResults.some(r => r.error) && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-3">
-              <div className="text-red-600 text-lg">⚠️</div>
+        <div style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: '14px 18px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <span style={{ color: '#f87171', fontSize: 16 }}>⚠️</span>
               <div>
-                <h3 className="font-semibold text-red-800 mb-2">部分比赛AI分析失败</h3>
-                <ul className="space-y-2">
-                  {batchResults.filter(r => r.error).map(r => {
-                    const match = getMatchInfo(r.matchId);
-                    return (
-                      <li key={r.matchId} className="text-red-700">
-                        {match.homeTeam || r.matchId} VS {match.awayTeam || ''} — {r.error}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#fca5a5', marginBottom: 8 }}>部分比赛AI分析失败</div>
+                {batchResults.filter(r => r.error).map(r => {
+                  const match = getMatchInfo(r.matchId);
+                  return (
+                    <div key={r.matchId} style={{ fontSize: 13, color: 'rgba(252,165,165,0.8)', marginBottom: 4 }}>
+                      {match.homeTeam || r.matchId} VS {match.awayTeam || ''} — {r.error}
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            <button
-              onClick={() => setBatchResults(null)}
-              className="text-red-600 hover:text-red-800"
-            >
-              ✕
-            </button>
+            <button onClick={() => setBatchResults(null)} style={{ color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16 }}>✕</button>
           </div>
         </div>
       )}
 
       {/* 操作卡片 */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex-1">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <RobotOutlined className="text-blue-600 text-2xl" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">球之见逻辑分析</h2>
-                <p className="text-gray-600 mt-1">基于比赛数据和预测，生成专业分析报告</p>
-              </div>
+      <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '18px 22px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ padding: 10, background: 'rgba(129,140,248,0.2)', borderRadius: 10 }}>
+              <RobotOutlined style={{ color: '#a5b4fc', fontSize: 22 }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>球之见逻辑分析</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>基于比赛数据和预测，生成专业分析报告</div>
             </div>
           </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="bg-gray-50 rounded-xl p-4 min-w-[180px]">
-              <div className="text-sm font-medium text-gray-500 mb-1">分析进度</div>
-              <div className="flex items-center space-x-4">
-                <div className="text-2xl font-semibold text-gray-900">{analyses.length}<span className="text-lg text-gray-400 ml-1">场</span></div>
-                <div className="text-sm text-gray-500">/ {selected.length} 场</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 10, padding: '10px 18px' }}>
+              <div style={{ fontSize: 12, color: '#a5b4fc', marginBottom: 4 }}>分析进度</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 24, fontWeight: 500, color: '#c7d2fe' }}>{analyses.length}</span>
+                <span style={{ fontSize: 13, color: '#a5b4fc' }}>场</span>
+                <span style={{ fontSize: 13, color: 'rgba(165,180,252,0.5)', marginLeft: 4 }}>/ {selected.length} 场</span>
               </div>
             </div>
-
             <button
               onClick={handleBatchGenerate}
               disabled={loading || !aiConfigured || selected.length === 0}
-              className="primary-button flex items-center space-x-2 px-6 py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, border: 'none', background: loading || !aiConfigured || selected.length === 0 ? 'rgba(129,140,248,0.3)' : '#818cf8', color: '#fff', cursor: loading || !aiConfigured || selected.length === 0 ? 'not-allowed' : 'pointer', fontSize: 15, fontWeight: 500 }}
             >
               <ThunderboltOutlined />
               <span>{loading ? '分析中...' : '一键生成所有分析'}</span>
@@ -215,160 +188,147 @@ export default function AIAnalysisPage() {
 
       {/* 加载状态 */}
       {loading && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <Spin size="large" tip="AI正在分析中..." className="mb-4" />
-          <p className="text-gray-500">正在为 {selected.length} 场比赛生成逻辑分析，请稍候...</p>
+        <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '48px 24px', textAlign: 'center' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 16, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>正在为 {selected.length} 场比赛生成逻辑分析，请稍候...</div>
         </div>
       )}
 
-      {/* 分析卡片网格 */}
-      <div className="space-y-6">
+      {/* 分析卡片列表 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {selected.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <div className="text-5xl mb-4">🤖</div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">暂无待分析比赛</h3>
-            <p className="text-gray-500 mb-6">请先在「选场预测」页面选择重点比赛并保存</p>
+          <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '48px 24px', textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🤖</div>
+            <h3 style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>暂无待分析比赛</h3>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>请先在「选场预测」页面选择重点比赛并保存</p>
           </div>
         ) : (
           selected.map((match) => {
             const analysis = getAnalysis(match.matchId);
             const hasAnalysis = !!analysis;
             const isEditing = editingId === match.matchId;
-            const confidenceStars = match.confidence ? '★'.repeat(match.confidence) + '☆'.repeat(5 - match.confidence) : '';
+            const predictions = match.prediction ? (Array.isArray(match.prediction) ? match.prediction : [match.prediction]) : [];
 
             return (
               <div
                 key={match.matchId}
-                className={`bg-white rounded-2xl border-2 transition-all duration-200 ${
-                  hasAnalysis ? 'border-emerald-200' : 'border-gray-100'
-                }`}
+                style={{
+                  background: hasAnalysis ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.05)',
+                  border: hasAnalysis ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: '18px 22px',
+                }}
               >
-                <div className="p-6">
-                  {/* 卡片头部：比赛信息 */}
-                  <div className="flex flex-col md:flex-row md:items-start justify-between mb-6">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <span className="bg-amber-100 text-amber-800 text-sm font-medium px-3 py-1.5 rounded-full">
-                          {match.league || '未知赛事'}
-                        </span>
-                        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full">
-                          #{match.matchId}
-                        </span>
-                        {match.isHot && (
-                          <span className="bg-red-100 text-red-800 text-sm font-medium px-3 py-1.5 rounded-full flex items-center">
-                            <span className="mr-1">🔥</span>
-                            热门比赛
-                          </span>
-                        )}
-                        {match.prediction && (
-                          <span className="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full">
-                            预测: {Array.isArray(match.prediction) ? match.prediction.join(',') : match.prediction}
-                          </span>
-                        )}
-                        {confidenceStars && (
-                          <span className="text-amber-500 text-sm font-medium">{confidenceStars}</span>
-                        )}
-                      </div>
-
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {match.homeTeam} <span className="text-gray-400 mx-2">VS</span> {match.awayTeam}
-                      </h3>
-                      <p className="text-gray-500 mt-1">{match.matchTime || '时间待定'}</p>
+                {/* 卡片头部 */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
+                  <div>
+                    {/* 标签行 */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                      <span style={{ background: 'rgba(251,146,60,0.2)', color: '#fb923c', fontSize: 12, padding: '2px 10px', borderRadius: 20 }}>{match.league || '未知赛事'}</span>
+                      <span style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', fontSize: 12, padding: '2px 10px', borderRadius: 20 }}>#{match.matchId}</span>
+                      {match.isHot && <span style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', fontSize: 12, padding: '2px 10px', borderRadius: 20 }}>🔥 热门</span>}
+                      {predictions.map(p => {
+                        const styleMap = {
+                          '胜':  { background: 'rgba(239,68,68,0.15)',  color: '#f87171' },
+                          '平':  { background: 'rgba(168,85,247,0.15)', color: '#c084fc' },
+                          '负':  { background: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
+                          '让胜':{ background: 'rgba(34,197,94,0.15)',  color: '#4ade80' },
+                          '让平':{ background: 'rgba(251,146,60,0.15)', color: '#fb923c' },
+                          '让负':{ background: 'rgba(6,182,212,0.15)',  color: '#22d3ee' },
+                        };
+                        return <span key={p} style={{ fontSize: 12, padding: '2px 10px', borderRadius: 20, ...(styleMap[p] || { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }) }}>预测: {p}</span>;
+                      })}
+                      {match.confidence && <span style={{ fontSize: 13, color: '#fbbf24' }}>{'★'.repeat(match.confidence)}</span>}
                     </div>
-
-                    {/* 操作按钮 */}
-                    <div className="mt-4 md:mt-0 flex space-x-2">
-                      {hasAnalysis && !isEditing && (
-                        <>
-                          <button
-                            onClick={() => copyToClipboard(analysis.content)}
-                            className="secondary-button flex items-center space-x-2 text-sm px-3 py-2"
-                          >
-                            <CopyOutlined />
-                            <span>复制</span>
-                          </button>
-                          <button
-                            onClick={() => startEdit(analysis)}
-                            className="primary-button flex items-center space-x-2 text-sm px-3 py-2"
-                          >
-                            <SaveOutlined />
-                            <span>编辑</span>
-                          </button>
-                        </>
-                      )}
+                    {/* 对阵 */}
+                    <div style={{ fontSize: 18, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
+                      {match.homeTeam} <span style={{ color: 'rgba(255,255,255,0.3)', margin: '0 8px', fontSize: 14 }}>VS</span> {match.awayTeam}
                     </div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{match.matchTime || '时间待定'}</div>
                   </div>
 
-                  {/* 用户分析笔记 */}
-                  {match.analysisNote && (
-                    <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                      <div className="text-sm font-medium text-blue-700 mb-1">我的分析笔记</div>
-                      <p className="text-blue-800">{match.analysisNote}</p>
+                  {/* 操作按钮 */}
+                  {hasAnalysis && !isEditing && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => copyToClipboard(analysis.content)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 13 }}
+                      >
+                        <CopyOutlined /> 复制
+                      </button>
+                      <button
+                        onClick={() => startEdit(analysis)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer', fontSize: 13 }}
+                      >
+                        <SaveOutlined /> 编辑
+                      </button>
                     </div>
                   )}
+                </div>
 
-                  {/* AI分析内容区域 */}
-                  <div className="mt-6">
-                    {hasAnalysis ? (
-                      isEditing ? (
-                        <div className="space-y-4">
-                          <Input.TextArea
-                            value={editContent}
-                            onChange={e => setEditContent(e.target.value)}
-                            rows={8}
-                            className="rounded-xl text-gray-700"
-                            placeholder="编辑分析内容..."
-                          />
-                          <div className="flex justify-end space-x-3">
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="px-4 py-2 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                            >
-                              取消
-                            </button>
-                            <button
-                              onClick={() => handleSaveEdit(match.matchId)}
-                              className="px-4 py-2 text-white font-medium bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center space-x-2"
-                            >
-                              <SaveOutlined />
-                              <span>保存修改</span>
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          {/* 结论层：AI分析内容（有明显视觉重心） */}
-                          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
-                            <div className="flex items-center mb-4">
-                              <div className="p-2 bg-emerald-100 rounded-lg mr-3">
-                                <RobotOutlined className="text-emerald-600" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-emerald-800">球之见逻辑分析</h4>
-                            </div>
-                            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-sans text-[15px]">
-                              {analysis.content}
-                            </div>
-                          </div>
-
-                          {/* 违禁词提示 */}
-                          {analysis.bannedWordsFound?.length > 0 && (
-                            <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
-                              <div className="text-sm font-medium text-amber-700 mb-1">已过滤违禁词</div>
-                              <div className="text-amber-600 text-sm">
-                                {analysis.bannedWordsFound.join(', ')}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    ) : (
-                      <div className="text-center p-8 bg-gray-50 border border-gray-200 rounded-2xl">
-                        <div className="text-4xl mb-4">🤔</div>
-                        <h4 className="text-lg font-medium text-gray-700 mb-2">暂无分析</h4>
-                        <p className="text-gray-500 mb-4">点击上方「一键生成所有分析」按钮生成智能分析报告</p>
-                      </div>
-                    )}
+                {/* 我的分析笔记 */}
+                {match.analysisNote && (
+                  <div style={{ marginBottom: 14, padding: '10px 14px', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 10 }}>
+                    <div style={{ fontSize: 12, color: '#a5b4fc', marginBottom: 4 }}>我的分析笔记</div>
+                    <div style={{ fontSize: 13, color: 'rgba(165,180,252,0.85)', lineHeight: 1.7 }}>{match.analysisNote}</div>
                   </div>
+                )}
+
+                {/* AI分析内容 */}
+                <div>
+                  {hasAnalysis ? (
+                    isEditing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        <Input.TextArea
+                          value={editContent}
+                          onChange={e => setEditContent(e.target.value)}
+                          rows={8}
+                          style={{ borderRadius: 10, background: 'rgba(0,0,0,0.25)', borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.82)', resize: 'vertical' }}
+                          placeholder="编辑分析内容..."
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            style={{ padding: '7px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: 13 }}
+                          >
+                            取消
+                          </button>
+                          <button
+                            onClick={() => handleSaveEdit(match.matchId)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 18px', borderRadius: 8, border: 'none', background: '#4ade80', color: '#0a0a0a', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}
+                          >
+                            <SaveOutlined /> 保存修改
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 12, padding: '16px 18px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                            <div style={{ padding: 6, background: 'rgba(34,197,94,0.15)', borderRadius: 8 }}>
+                              <RobotOutlined style={{ color: '#4ade80', fontSize: 14 }} />
+                            </div>
+                            <span style={{ fontSize: 14, fontWeight: 500, color: '#4ade80' }}>球之见逻辑分析</span>
+                          </div>
+                          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.82)', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
+                            {analysis.content}
+                          </div>
+                        </div>
+                        {analysis.bannedWordsFound?.length > 0 && (
+                          <div style={{ marginTop: 10, padding: '10px 14px', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 8 }}>
+                            <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 4 }}>已过滤违禁词</div>
+                            <div style={{ fontSize: 12, color: 'rgba(251,191,36,0.7)' }}>{analysis.bannedWordsFound.join(', ')}</div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '24px 0', background: 'rgba(0,0,0,0.15)', borderRadius: 10 }}>
+                      <div style={{ fontSize: 36, marginBottom: 10 }}>🤔</div>
+                      <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 4 }}>暂无分析</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>点击上方「一键生成所有分析」按钮生成智能分析报告</div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

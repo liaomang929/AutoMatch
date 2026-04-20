@@ -105,7 +105,7 @@ function App() {
               <TrophyOutlined style={{fontSize: 20, color: '#a5b4fc'}} />
             </div>
             <h1 style={{fontSize: 18, fontWeight: 500, color: 'rgba(255,255,255,0.95)', margin: 0, letterSpacing: '0.01em'}}>
-              球之见——从购彩新手到逻辑玩家的知识变现之路
+              球之见-重塑赛事逻辑，预见胜负先机
             </h1>
           </div>
         </header>
