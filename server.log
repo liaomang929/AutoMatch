@@ -1,0 +1,290 @@
+
+> automatch@1.0.0 dev
+> node server/index.js
+
+◇ injected env (5) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+🚀 AutoMatch 后端服务已启动: http://localhost:3001
+📁 数据存储目录: /Users/liaom/Desktop/AutoMatch
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2153
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 724
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 345
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 193
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 333
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 193
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二002_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 338
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 183
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二003_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 336
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 186
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二005_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 62, userPrompt长度: 2010
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=2000
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=2000
+✅ 大模型调用成功，返回长度: 564
+💾 公众号文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/04_公众号文案/wechat_article.md
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2156
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 734
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 360
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 181
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 333
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 178
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二002_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 338
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 189
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二003_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 336
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 164
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二005_analysis.md
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 62, userPrompt长度: 2039
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=2000
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=2000
+✅ 大模型调用成功，返回长度: 538
+💾 公众号文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/04_公众号文案/wechat_article.md
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2171
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 849
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 351
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 193
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二002_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 338
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 175
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二003_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 336
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 210
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 333
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 190
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二004_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 62, userPrompt长度: 2026
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=2000
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=2000
+✅ 大模型调用成功，返回长度: 623
+💾 公众号文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/04_公众号文案/wechat_article.md
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2165
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 788
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 337
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 199
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 333
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 208
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二002_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 347
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 205
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二003_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 333
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 216
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二004_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 62, userPrompt长度: 2005
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=2000
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=2000
+✅ 大模型调用成功，返回长度: 629
+💾 公众号文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/04_公众号文案/wechat_article.md
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2157
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 862
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md
+🌐 启动浏览器抓取500彩票网数据...
+📡 正在访问页面...
+🔍 正在解析页面数据...
+✅ 成功抓取 10 场比赛数据
+💾 原始数据已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/01_原始数据/matches.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+💾 重点比赛已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/02_重点比赛/selected.json
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 337
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 172
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二001_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 360
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 184
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二002_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 338
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 193
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二003_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 40, userPrompt长度: 330
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.7, maxTokens=500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=500
+✅ 大模型调用成功，返回长度: 182
+💾 AI分析已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/03_AI分析/match_周二006_analysis.md
+🤖 开始调用大模型，systemPrompt长度: 62, userPrompt长度: 1979
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=2000
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=2000
+✅ 大模型调用成功，返回长度: 544
+💾 公众号文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/04_公众号文案/wechat_article.md
+🤖 开始调用大模型，systemPrompt长度: 153, userPrompt长度: 2175
+🔧 使用配置: provider=zhipu, model=glm-4, apiKey长度=49
+🔧 调用参数: temperature=0.8, maxTokens=1500
+🔧 调用智谱AI
+🔧 调用智谱AI: model=glm-4, tokens=1500
+✅ 大模型调用成功，返回长度: 870
+💾 直播文案已保存: /Users/liaom/Desktop/AutoMatch/2026-04-21/05_直播文案/live_script.md

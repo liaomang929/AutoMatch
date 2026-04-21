@@ -384,7 +384,7 @@ export default function PredictPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 10 }}>快捷分析短语</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {['盘口水位合理', '基本面符合盘口', '盘口动态变化合理', '上盘可期', '下盘有机会', '数据走势看好正路', '客队状态更佳'].map((phrase) => (
+                {['上盘问题不大', '水位合理', '基本面与盘口相符', '盘口动态变化合理', '数据走势看好正路', '下盘有机会', '初盘与基本面不一致','盘口调整不合理','强队水位太高','弱队状态更佳'].map((phrase) => (
                   <button
                     key={phrase}
                     type="button"

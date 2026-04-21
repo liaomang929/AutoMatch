@@ -159,35 +159,7 @@ export default function HistoryPage() {
           </Button>
         );
       }
-    },
-    {
-      title: '我的分析逻辑',
-      dataIndex: 'analysisNote',
-      key: 'analysisNote',
-      width: 250,
-      render: (text) => text ? (
-        <Paragraph
-          ellipsis={{ rows: 2, expandable: true, symbol: '展开' }}
-          style={{ marginBottom: 0, color: 'rgba(255,255,255,0.75)', fontSize: 13 }}
-        >
-          {text}
-        </Paragraph>
-      ) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>-</span>
-    },
-    {
-      title: '球之见分析',
-      dataIndex: 'aiAnalysis',
-      key: 'aiAnalysis',
-      width: 200,
-      render: (text) => text ? (
-        <Paragraph
-          ellipsis={{ rows: 2, expandable: true, symbol: '展开' }}
-          style={{ marginBottom: 0, color: 'rgba(165,180,252,0.8)', fontSize: 13 }}
-        >
-          {text}
-        </Paragraph>
-      ) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>-</span>
-    },
+    }
   ];
 
   return (

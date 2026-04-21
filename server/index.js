@@ -2,21 +2,20 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
 const scrapeRoute = require('./routes/scrape');
 const matchRoute = require('./routes/matches');
 const aiRoute = require('./routes/ai');
 const articleRoute = require('./routes/articles');
 const configRoute = require('./routes/config');
 const historyRoute = require('./routes/history');
+const { router: authRouter } = require('./routes/auth');
+const picksRoute = require('./routes/picks');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// 静态文件服务 - 保留供Markdown文件访问（可选）
 const dataDir = process.env.DATA_DIR || path.join(require('os').homedir(), 'Desktop', 'AutoMatch');
 app.use('/data', express.static(dataDir));
 
@@ -27,8 +26,10 @@ app.use('/api/ai', aiRoute);
 app.use('/api/articles', articleRoute);
 app.use('/api/config', configRoute);
 app.use('/api/history', historyRoute);
+app.use('/api/auth', authRouter);
+app.use('/api/picks', picksRoute);
 
-// 根路由 - 返回简单状态页
+// 根路由
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -41,17 +42,14 @@ app.get('/', (req, res) => {
   `);
 });
 
-// 健康检查
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// 如果是直接运行（node server/index.js），则启动服务器
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 AutoMatch 后端服务已启动: http://localhost:${PORT}`);
     console.log(`📁 数据存储目录: ${dataDir}`);
   });
 }
-
 module.exports = app;
