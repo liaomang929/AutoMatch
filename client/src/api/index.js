@@ -18,11 +18,11 @@ async function request(url, options = {}) {
 }
 
 // ====== Auth 相关 ======
-export const authRegister = (email, password, nickname) =>
-  request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, nickname }) });
+export const authRegister = (phone, password, nickname) =>
+  request('/auth/register', { method: 'POST', body: JSON.stringify({ phone, password, nickname }) });
 
-export const authLogin = (email, password) =>
-  request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+export const authLogin = (phone, password) =>
+  request('/auth/login', { method: 'POST', body: JSON.stringify({ phone, password }) });
 
 export const authStatus = () => request('/auth/status');
 
@@ -73,6 +73,12 @@ export const saveAIConfig = (config) =>
   request('/config/ai', { method: 'PUT', body: JSON.stringify(config) });
 export const testAIConnection = () => request('/config/ai/test', { method: 'POST' });
 export const getAIStatus = () => request('/config/ai/status');
+
+// ====== 精选相关 ======
+export const getAllPicks = () => request('/picks/all');
+export const updatePickResult = (date, matchNo, actualResult) =>
+  request('/picks/result', { method: 'PUT', body: JSON.stringify({ date, matchNo, actualResult }) });
+export const getPickHitRate = (days = 7) => request(`/picks/hit-rate?days=${days}`);
 
 // ====== 历史记录相关 ======
 export const getHistory = (params) => {

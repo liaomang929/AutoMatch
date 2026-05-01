@@ -2,3 +2,10 @@ node_modules/
 .env
 .DS_Store
 .vercel
+release/
+build/icon.png
+ai_configs/
+.qoder/
+server.log
+client/src/pages/AuthPage_bak.jsx
+client/src/App-bak.jsx

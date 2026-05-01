@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const dbService = require('../services/fileStorage');
+const dbService = require('../services/dbStorage');
 
 /**
  * GET /api/history - 获取历史记录（分页+日期筛选）
@@ -9,7 +9,7 @@ const dbService = require('../services/fileStorage');
 router.get('/', async (req, res) => {
   try {
     const { startDate, endDate, page = 1, pageSize = 10 } = req.query;
-    const result = dbService.getHistoryRecords({
+    const result = await dbService.getHistoryRecords({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       page: parseInt(page),
@@ -31,13 +31,10 @@ router.put('/actual-result', async (req, res) => {
       return res.status(400).json({ success: false, error: '缺少必要参数' });
     }
     
-    let selected = dbService.readSelectedMatches(date) || [];
-    const idx = selected.findIndex(m => m.matchId === matchId);
-    if (idx < 0) {
+    const updated = await dbService.updateActualResult(date, matchId, actualResult);
+    if (!updated) {
       return res.status(404).json({ success: false, error: '未找到该比赛' });
     }
-    selected[idx].actualResult = actualResult;
-    dbService.saveSelectedMatches(date, selected);
     
     res.json({ success: true });
   } catch (error) {

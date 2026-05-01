@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const dbService = require('../services/fileStorage');
+const dbService = require('../services/dbStorage');
 
 /**
  * GET /api/matches/dates - 获取所有有数据的日期
  */
 router.get('/dates', async (req, res) => {
   try {
-    const dates = dbService.getAvailableDates();
+    const dates = await dbService.getAvailableDates();
     res.json({ success: true, data: dates });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -20,8 +20,8 @@ router.get('/dates', async (req, res) => {
 router.get('/:date', async (req, res) => {
   try {
     const { date } = req.params;
-    const raw = dbService.readRawMatches(date);
-    const selected = dbService.readSelectedMatches(date);
+    const raw = await dbService.readRawMatches(date);
+    const selected = await dbService.readSelectedMatches(date);
     res.json({ 
       success: true, 
       data: { 
@@ -41,7 +41,7 @@ router.put('/:date/select', async (req, res) => {
   try {
     const { date } = req.params;
     const { selectedMatches } = req.body;
-    dbService.saveSelectedMatches(date, selectedMatches);
+    await dbService.saveSelectedMatches(date, selectedMatches);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -56,7 +56,7 @@ router.put('/:date/predict/:matchId', async (req, res) => {
     const { date, matchId } = req.params;
     const prediction = req.body;
     
-    let selected = dbService.readSelectedMatches(date) || [];
+    let selected = await dbService.readSelectedMatches(date) || [];
     const idx = selected.findIndex(m => m.matchId === matchId);
     if (idx >= 0) {
       selected[idx] = { ...selected[idx], ...prediction };
@@ -64,7 +64,7 @@ router.put('/:date/predict/:matchId', async (req, res) => {
       selected.push({ matchId, ...prediction });
     }
     
-    dbService.saveSelectedMatches(date, selected);
+    await dbService.saveSelectedMatches(date, selected);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

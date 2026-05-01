@@ -36,27 +36,28 @@ function adminMiddleware(req, res, next) {
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
-  const { email, password, nickname } = req.body;
-  if (!email || !password) return res.json({ success: false, error: '邮箱和密码不能为空' });
+  const { phone, password, nickname } = req.body;
+  if (!phone || !password) return res.json({ success: false, error: '手机号和密码不能为空' });
   if (password.length < 6) return res.json({ success: false, error: '密码至少6位' });
 
   try {
-    const exists = await pool.query('SELECT id FROM users WHERE email=$1', [email.toLowerCase()]);
-    if (exists.rows.length > 0) return res.json({ success: false, error: '该邮箱已注册' });
+    const exists = await pool.query('SELECT id FROM users WHERE phone=$1', [phone.toLowerCase()]);
+    if (exists.rows.length > 0) return res.json({ success: false, error: '该手机号已注册' });
 
     const hash = await bcrypt.hash(password, 10);
-    const trialExpire = new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000);
+    //const trialExpire = new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000);
+    const trialExpire = new Date(Date.now() - 1000);
 
     const result = await pool.query(
-      `INSERT INTO users (email, password_hash, nickname, trial_expire_at)
-       VALUES ($1, $2, $3, $4) RETURNING id, email, nickname, role, trial_expire_at`,
-      [email.toLowerCase(), hash, nickname || email.split('@')[0], trialExpire]
+      `INSERT INTO users (phone, password_hash, nickname, trial_expire_at)
+       VALUES ($1, $2, $3, $4) RETURNING id, phone, nickname, role, trial_expire_at`,
+      [phone.toLowerCase(), hash, nickname || phone.split('@')[0], trialExpire]
     );
 
     const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
+    const token = jwt.sign({ id: user.id, phone: user.phone, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ success: true, data: { token, user: { id: user.id, email: user.email, nickname: user.nickname, role: user.role, trialExpireAt: user.trial_expire_at } } });
+    res.json({ success: true, data: { token, user: { id: user.id, phone: user.phone, nickname: user.nickname, role: user.role, trialExpireAt: user.trial_expire_at } } });
   } catch (e) {
     console.error('注册失败:', e);
     res.json({ success: false, error: '注册失败，请稍后重试' });
@@ -65,16 +66,16 @@ router.post('/register', async (req, res) => {
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.json({ success: false, error: '邮箱和密码不能为空' });
+  const { phone, password } = req.body;
+  if (!phone || !password) return res.json({ success: false, error: '手机号和密码不能为空' });
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email=$1', [email.toLowerCase()]);
-    if (result.rows.length === 0) return res.json({ success: false, error: '邮箱或密码错误' });
+    const result = await pool.query('SELECT * FROM users WHERE phone=$1', [phone.toLowerCase()]);
+    if (result.rows.length === 0) return res.json({ success: false, error: '手机号或密码错误' });
 
     const user = result.rows[0];
     const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) return res.json({ success: false, error: '邮箱或密码错误' });
+    if (!valid) return res.json({ success: false, error: '手机号或密码错误' });
 
     // 获取最新授权状态
     const license = await pool.query(
@@ -89,13 +90,13 @@ router.post('/login', async (req, res) => {
     const authorized = trialValid || licenseValid;
     const expireAt = licenseValid ? licenseExpire : user.trial_expire_at;
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
+    const token = jwt.sign({ id: user.id, phone: user.phone, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
     res.json({
       success: true,
       data: {
         token,
-        user: { id: user.id, email: user.email, nickname: user.nickname, role: user.role },
+        user: { id: user.id, phone: user.phone, nickname: user.nickname, role: user.role },
         auth: { authorized, expireAt, isTrial: trialValid && !licenseValid }
       }
     });
@@ -108,7 +109,7 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/status  (需要登录)
 router.get('/status', authMiddleware, async (req, res) => {
   try {
-    const user = await pool.query('SELECT id, email, nickname, role, trial_expire_at FROM users WHERE id=$1', [req.user.id]);
+    const user = await pool.query('SELECT id, phone, nickname, role, trial_expire_at FROM users WHERE id=$1', [req.user.id]);
     if (user.rows.length === 0) return res.json({ success: false, error: '用户不存在' });
 
     const u = user.rows[0];
@@ -127,7 +128,7 @@ router.get('/status', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       data: {
-        user: { id: u.id, email: u.email, nickname: u.nickname, role: u.role },
+        user: { id: u.id, phone: u.phone, nickname: u.nickname, role: u.role },
         auth: { authorized, expireAt, isTrial: trialValid && !licenseValid }
       }
     });
@@ -196,7 +197,7 @@ router.post('/admin/codes', authMiddleware, adminMiddleware, async (req, res) =>
 router.get('/admin/codes', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT lc.*, u.email as user_email, u.nickname as user_nickname
+      `SELECT lc.*, u.phone as user_phone, u.nickname as user_nickname
        FROM license_codes lc
        LEFT JOIN users u ON lc.user_id = u.id
        ORDER BY lc.created_at DESC LIMIT 200`
@@ -211,7 +212,7 @@ router.get('/admin/codes', authMiddleware, adminMiddleware, async (req, res) => 
 router.get('/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT u.id, u.email, u.nickname, u.role, u.trial_expire_at, u.created_at,
+      `SELECT u.id, u.phone, u.nickname, u.role, u.trial_expire_at, u.created_at,
         (SELECT expire_at FROM license_codes WHERE user_id=u.id AND status='active' ORDER BY expire_at DESC LIMIT 1) as license_expire_at
        FROM users u ORDER BY u.created_at DESC`
     );

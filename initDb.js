@@ -16,30 +16,29 @@ async function init() {
     console.log('✅ 数据库连接成功');
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        email VARCHAR(255) UNIQUE NOT NULL,
+      CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        phone VARCHAR(20) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        nickname VARCHAR(100),
+        nickname VARCHAR(50),
         role VARCHAR(20) DEFAULT 'user',
-        trial_expire_at TIMESTAMPTZ NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
+        trial_expire_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
       )
     `);
     console.log('✅ users 表创建成功');
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS license_codes (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      CREATE TABLE license_codes (
+        id SERIAL PRIMARY KEY,
         code VARCHAR(20) UNIQUE NOT NULL,
         days INTEGER NOT NULL,
-        user_id UUID REFERENCES users(id),
         status VARCHAR(20) DEFAULT 'unused',
-        activated_at TIMESTAMPTZ,
-        expire_at TIMESTAMPTZ,
+        user_id INTEGER REFERENCES users(id),
         note TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
+        activated_at TIMESTAMP,
+        expire_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
       )
     `);
     console.log('✅ license_codes 表创建成功');

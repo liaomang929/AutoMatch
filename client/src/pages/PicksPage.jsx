@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { message, Input, Spin, Checkbox } from 'antd';
 import {
   FireOutlined, PlusOutlined, DeleteOutlined,
-  TrophyOutlined, EditOutlined, CheckOutlined, CloseOutlined, ThunderboltOutlined
+  TrophyOutlined, EditOutlined, CheckOutlined, CloseOutlined, ThunderboltOutlined, CopyOutlined
 } from '@ant-design/icons';
 
 const { TextArea } = Input;
@@ -61,13 +61,14 @@ const genOpinionTemplate = (ms, comboOdds) => {
     lines.push(`${no}  ${m.homeTeam || '主队'} VS  ${m.awayTeam || '客队'}  ${predStr}`);
   });
   lines.push('');
-  lines.push('球之见的观点:');
+  lines.push('观点:');
   return lines.join('\n');
 };
 
 export default function PicksPage({ user }) {
   const isAdmin = user?.role === 'admin';
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
   const [pick, setPick] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,6 +76,7 @@ export default function PicksPage({ user }) {
   const [matches, setMatches] = useState([emptyMatch()]);
   const [opinion, setOpinion] = useState('');
   const [publishing, setPublishing] = useState(false);
+  const [hitRate, setHitRate] = useState(null);
 
   useEffect(() => { loadPick(); }, []);
 
@@ -84,8 +86,8 @@ export default function PicksPage({ user }) {
     const combo = calcComboOdds(matches);
     const template = genOpinionTemplate(matches, combo);
     setOpinion(prev => {
-      // 找到"球之见的观点:"后面用户自己写的内容，保留
-      const marker = '球之见的观点:';
+      // 找到"观点:"后面用户自己写的内容，保留
+      const marker = '观点:';
       const markerIdx = prev.indexOf(marker);
       const userContent = markerIdx >= 0 ? prev.slice(markerIdx + marker.length) : '';
       return template + userContent;
@@ -95,8 +97,12 @@ export default function PicksPage({ user }) {
   const loadPick = async () => {
     setLoading(true);
     try {
-      const res = await request(`/picks?date=${today}`);
-      setPick(res.data);
+      const [pickRes, hitRateRes] = await Promise.all([
+        request(`/picks?date=${today}`),
+        request('/picks/hit-rate?days=7').catch(() => null),
+      ]);
+      setPick(pickRes.data);
+      setHitRate(hitRateRes?.data || null);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -109,7 +115,7 @@ export default function PicksPage({ user }) {
       const hasOdds = m.predictions.every(p => !isNaN(parseFloat(m.oddsMap?.[p])) && parseFloat(m.oddsMap?.[p]) > 0);
       if (!hasOdds) return message.error(`第${i + 1}场：请填写每个预测选项的赔率`);
     }
-    if (!opinion.trim()) return message.error('请填写球之见观点');
+    if (!opinion.trim()) return message.error('请填写观点');
     setPublishing(true);
     try {
       const combo_odds = calcComboOdds(matches);
@@ -120,7 +126,7 @@ export default function PicksPage({ user }) {
         odds: String(calcMatchAvgOdds(m)),
       }));
       await request('/picks', { method: 'POST', body: JSON.stringify({ date: today, matches: storeMatches, opinion, combo_odds }) });
-      message.success('精选已发布！');
+      message.success(pick ? '今日精选已更新！' : '精选已发布！');
       setEditing(false);
       loadPick();
     } catch (e) { message.error(e.message); }
@@ -186,6 +192,19 @@ export default function PicksPage({ user }) {
 
   const comboOdds = calcComboOdds(matches);
 
+  const handleCopyOpinion = async () => {
+    if (!pick?.opinion) {
+      message.warning('暂无可复制的观点');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(pick.opinion);
+      message.success('观点已复制');
+    } catch {
+      message.error('复制失败，请手动复制');
+    }
+  };
+
   // ===== 编辑模式 =====
   if (editing) {
     return (
@@ -197,7 +216,7 @@ export default function PicksPage({ user }) {
               <FireOutlined style={{ color: '#f87171', fontSize: 20 }} />
             </div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>发布今日精选</div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>{pick ? '修改今日精选' : '发布今日精选'}</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{today} · 选择1-3场，每场可选多个结果</div>
             </div>
           </div>
@@ -206,7 +225,7 @@ export default function PicksPage({ user }) {
               <CloseOutlined /> 取消
             </button>
             <button onClick={handlePublish} disabled={publishing} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
-              <CheckOutlined /> {publishing ? '发布中...' : '确认发布'}
+              <CheckOutlined /> {publishing ? (pick ? '更新中...' : '发布中...') : (pick ? '确认更新' : '确认发布')}
             </button>
           </div>
         </div>
@@ -295,7 +314,7 @@ export default function PicksPage({ user }) {
 
         {/* 观点文本框（自动填充） */}
         <div style={{ ...card, padding: '18px 20px' }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#a5b4fc', marginBottom: 10 }}>球之见观点 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>（已自动填入格式，在「球之见的观点:」后继续写）</span></div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#a5b4fc', marginBottom: 10 }}>观点 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>（已自动填入格式，在「观点:」后继续写）</span></div>
           <TextArea
             value={opinion}
             onChange={e => setOpinion(e.target.value)}
@@ -321,18 +340,33 @@ export default function PicksPage({ user }) {
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{today} · 专业推荐 · 每日20:00前更新</div>
           </div>
         </div>
-        {isAdmin && (
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={startEdit} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
-              <EditOutlined /> {pick ? '修改精选' : '发布精选'}
-            </button>
-            {pick && (
-              <button onClick={handleDelete} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.1)', color: '#f87171', cursor: 'pointer', fontSize: 14 }}>
-                <DeleteOutlined />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {hitRate && (() => {
+            const pct = (hitRate.rate * 100).toFixed(1);
+            const color = hitRate.rate >= 0.7 ? '#16a34a' : hitRate.rate >= 0.4 ? '#fbbf24' : '#f87171';
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 1 }}>近7天命中率</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{hitRate.hitDays}/{hitRate.totalDays}天</div>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1 }}>{pct}%</div>
+              </div>
+            );
+          })()}
+          {isAdmin && (
+            <>
+              <button onClick={startEdit} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
+                <EditOutlined /> {pick ? '修改精选' : '发布精选'}
               </button>
-            )}
-          </div>
-        )}
+              {pick && (
+                <button onClick={handleDelete} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.1)', color: '#f87171', cursor: 'pointer', fontSize: 14 }}>
+                  <DeleteOutlined />
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -399,14 +433,23 @@ export default function PicksPage({ user }) {
             })}
           </div>
 
-          {/* 球之见观点 */}
+          {/* 观点 */}
           {pick.opinion && (
             <div style={{ background: 'rgba(129,140,248,0.07)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: 14, padding: '20px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <div style={{ padding: '4px 8px', background: 'rgba(129,140,248,0.2)', borderRadius: 6 }}>
-                  <FireOutlined style={{ color: '#a5b4fc', fontSize: 13 }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ padding: '4px 8px', background: 'rgba(129,140,248,0.2)', borderRadius: 6 }}>
+                    <FireOutlined style={{ color: '#a5b4fc', fontSize: 13 }} />
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#a5b4fc' }}>观点</span>
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#a5b4fc' }}>球之见观点</span>
+                <button
+                  onClick={handleCopyOpinion}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(129,140,248,0.28)', background: 'rgba(129,140,248,0.12)', color: '#c7d2fe', cursor: 'pointer', fontSize: 13 }}
+                >
+                  <CopyOutlined />
+                  <span>复制</span>
+                </button>
               </div>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.82)', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>
                 {pick.opinion}

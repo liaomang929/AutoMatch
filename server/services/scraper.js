@@ -1,5 +1,6 @@
+const path = require('path');
 const puppeteer = require('puppeteer-core');
-const dbService = require('./fileStorage');
+const dbService = require('./dbStorage');
 
 const TARGET_URL = 'https://trade.500.com/jczq/index.php?playid=312&g=2';
 
@@ -7,12 +8,29 @@ const TARGET_URL = 'https://trade.500.com/jczq/index.php?playid=312&g=2';
  * 获取Chrome可执行路径
  */
 function getChromePath() {
-  // 在Vercel环境中，使用特殊配置
-  if (process.env.VERCEL) {
-    // Vercel serverless环境中可能没有Chrome，尝试使用内置路径或返回null
-    return process.env.CHROME_PATH || '/usr/bin/chromium';
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const fs = require('fs');
+  if (process.platform === 'linux') {
+    const paths = ['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'];
+    for (const p of paths) {
+      if (fs.existsSync(p)) return p;
+    }
   }
-  return process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  if (process.platform === 'win32') {
+    const candidates = [
+      path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      path.join(process.env.PROGRAMFILES || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      path.join(process.env['PROGRAMFILES(X86)'] || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) return p;
+    }
+  }
+  if (process.platform === 'darwin') {
+    return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  }
+  // 兜底：让 puppeteer 自己报错
+  return '';
 }
 
 /**

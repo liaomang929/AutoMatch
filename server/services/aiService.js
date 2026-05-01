@@ -27,22 +27,22 @@ const DEFAULT_CONFIG = {
 /**
  * 读取AI配置（从数据库）
  */
-async function getConfig() {
-  return await dbStorage.getConfig();
+async function getConfig(userId) {
+  return await dbStorage.getConfig(userId);
 }
 
 /**
  * 保存AI配置（到数据库）
  */
-async function saveConfig(config) {
-  await dbStorage.saveConfig(config);
+async function saveConfig(config, userId) {
+  await dbStorage.saveConfig(config, userId);
 }
 
 /**
  * 获取当前生效的配置（API Key和模型信息）
  */
-async function getActiveConfig() {
-  return await dbStorage.getActiveConfig();
+async function getActiveConfig(userId) {
+  return await dbStorage.getActiveConfig(userId);
 }
 
 /**
@@ -52,7 +52,7 @@ async function callLLM(systemPrompt, userPrompt, options = {}) {
   try {
     console.log(`🤖 开始调用大模型，systemPrompt长度: ${systemPrompt.length}, userPrompt长度: ${userPrompt.length}`);
 
-    const { provider, apiKey, baseUrl, model } = await getActiveConfig();
+    const { provider, apiKey, baseUrl, model } = await getActiveConfig(options.userId);
     console.log(`🔧 使用配置: provider=${provider}, model=${model}, apiKey长度=${apiKey ? apiKey.length : 0}`);
 
     if (!apiKey || apiKey.trim().length === 0) {
@@ -264,7 +264,7 @@ async function callOpenAICompatible(apiKey, baseUrl, model, systemPrompt, userPr
 /**
  * 生成单场比赛分析文案
  */
-async function generateMatchAnalysis(matchData) {
+async function generateMatchAnalysis(matchData, options = {}) {
   const prompt = `你是一位资深足球赛事分析师，请根据以下信息撰写一段约200字的赛事分析：
 
 比赛：${matchData.homeTeam} vs ${matchData.awayTeam}
@@ -288,7 +288,7 @@ async function generateMatchAnalysis(matchData) {
   const content = await callLLM(
     '你是一位专业的足球赛事分析师，擅长通过数据分析比赛走势，语言精炼有力，逻辑严密。',
     prompt,
-    { temperature: 0.7, maxTokens: 500 }
+    { temperature: 0.7, maxTokens: 500, userId: options.userId }
   );
 
   return {
@@ -304,7 +304,7 @@ async function generateMatchAnalysis(matchData) {
 /**
  * 生成公众号推文
  */
-async function generateWechatArticle(hotMatch, otherMatch) {
+async function generateWechatArticle(hotMatch, otherMatch, options = {}) {
   const prompt = `# 公众号帖子专用提示词
 
 ## 角色设定
@@ -421,7 +421,7 @@ AI分析摘要：${hotMatch.aiAnalysis || '无'}
   const content = await callLLM(
     '你是一位拥有15年经验的资深足球比赛分析师，擅长从数据动态变化中洞察比赛走向，文笔富有感染力，擅长用比喻和意象表达专业观点。',
     prompt,
-    { temperature: 0.8, maxTokens: 2000 }
+    { temperature: 0.8, maxTokens: 2000, userId: options.userId }
   );
 
   return {
@@ -434,7 +434,7 @@ AI分析摘要：${hotMatch.aiAnalysis || '无'}
 /**
  * 生成直播文案（三场比赛版 - 每场200-300字，毒舌导演分析师风格）
  */
-async function generateLiveScript(hotMatches) {
+async function generateLiveScript(hotMatches, options = {}) {
   const matchesInfo = hotMatches.map((m, idx) =>
     `第${idx + 1}场：${m.homeTeam} vs ${m.awayTeam}（${m.league || '未知赛事'}）
     数据指标（胜/平/负）：${m.oddsWin || '未知'}/${m.oddsDraw || '未知'}/${m.oddsLoss || '未知'}
@@ -530,7 +530,7 @@ ${matchesInfo}
   const content = await callLLM(
     '你是一位毒舌、犀利的足球赛事导演分析师，拥有15年经验。你善于用电影导演的视角解读比赛，语言简短有力，每句话像匕首一样精准。你的风格是：笃定、毒舌、揭秘感，善于制造悬念，让观众欲罢不能。你特别注重文章结构，擅长使用"总分总"格式，能够将直播文案内容结构化展示在一个大的text文本里面，结构清晰，段落分明。',
     prompt,
-    { temperature: 0.8, maxTokens: 1500 }
+    { temperature: 0.8, maxTokens: 1500, userId: options.userId }
   );
 
   return {

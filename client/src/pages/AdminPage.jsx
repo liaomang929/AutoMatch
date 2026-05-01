@@ -78,7 +78,23 @@ export default function AdminPage() {
     { title: '授权码', dataIndex: 'code', key: 'code', render: (v) => <span style={{ fontFamily: 'monospace', color: '#a5b4fc', fontWeight: 500 }}>{v}</span> },
     { title: '天数', dataIndex: 'days', key: 'days', width: 80, render: (v) => <span style={{ color: '#fbbf24' }}>{v}天</span> },
     { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v) => <Tag color={v === 'unused' ? 'blue' : v === 'active' ? 'success' : 'default'}>{v === 'unused' ? '未使用' : v === 'active' ? '已激活' : '已过期'}</Tag> },
-    { title: '使用用户', key: 'user', render: (_, r) => r.user_email ? <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>{r.user_nickname} ({r.user_email})</span> : <span style={{ color: 'rgba(255,255,255,0.25)' }}>-</span> },
+    { 
+      title: '使用用户', 
+      key: 'user', 
+      render: (_, r) => {
+        const boundUser = users.find(u => (u.id || u._id) === r.user_id);
+        if (boundUser) {
+          return (
+            <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500 }}>
+              {boundUser.phone || boundUser.nickname || '未知用户'}
+            </span>
+          );
+        }
+        return r.user_id ? 
+          <span style={{ color: 'rgba(255,255,255,0.45)' }}>ID: {r.user_id}</span> : 
+          <span style={{ color: 'rgba(255,255,255,0.25)' }}>-</span>;
+      } 
+    },
     { title: '到期时间', dataIndex: 'expire_at', key: 'expire_at', render: (v) => v ? new Date(v).toLocaleDateString('zh-CN') : '-' },
     { title: '备注', dataIndex: 'note', key: 'note', render: (v) => <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12 }}>{v || '-'}</span> },
     { title: '创建时间', dataIndex: 'created_at', key: 'created_at', render: (v) => new Date(v).toLocaleDateString('zh-CN') },
@@ -91,7 +107,7 @@ export default function AdminPage() {
   ];
 
   const userColumns = [
-    { title: '用户', key: 'user', render: (_, r) => <div><div style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>{r.nickname}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{r.email}</div></div> },
+    { title: '用户', key: 'user', render: (_, r) => <div><div style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>{r.nickname}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{r.phone || r.email}</div></div> },
     { title: '角色', dataIndex: 'role', key: 'role', width: 90, render: (v) => <Tag color={v === 'admin' ? 'purple' : 'blue'}>{v === 'admin' ? '管理员' : '用户'}</Tag> },
     {
       title: '授权状态', key: 'status', render: (_, r) => {
@@ -104,13 +120,11 @@ export default function AdminPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* 顶部标题 */}
       <div style={{ ...card, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ fontSize: 18, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>管理后台</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>共 {users.length} 个用户 · {codes.filter(c => c.status === 'unused').length} 个未使用授权码</div>
       </div>
 
-      {/* Tab 切换 */}
       <div style={{ display: 'flex', gap: 8 }}>
         {[{ key: 'codes', label: '授权码管理', icon: <KeyOutlined /> }, { key: 'users', label: '用户列表', icon: <UserOutlined /> }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: tab === t.key ? '1px solid rgba(129,140,248,0.5)' : '1px solid rgba(255,255,255,0.1)', background: tab === t.key ? 'rgba(129,140,248,0.15)' : 'transparent', color: tab === t.key ? '#a5b4fc' : 'rgba(255,255,255,0.55)', cursor: 'pointer', fontSize: 14 }}>
@@ -119,7 +133,6 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {/* 授权码管理 */}
       {tab === 'codes' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -136,14 +149,12 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 用户列表 */}
       {tab === 'users' && (
         <div style={{ ...card, overflow: 'hidden' }}>
           <Table columns={userColumns} dataSource={users} rowKey="id" loading={loadingUsers} size="middle" pagination={{ pageSize: 20, showTotal: (t) => `共 ${t} 个用户` }} />
         </div>
       )}
 
-      {/* 生成授权码弹窗 */}
       <Modal
         title={<span style={{ color: 'rgba(255,255,255,0.92)', fontSize: 16 }}>生成授权码</span>}
         open={genModal}
@@ -179,9 +190,8 @@ export default function AdminPage() {
             <Form form={form} layout="vertical" onFinish={handleGenerate}>
               <Form.Item label={<span style={{ color: 'rgba(255,255,255,0.7)' }}>有效天数</span>} name="days" rules={[{ required: true }]}>
                 <Select size="large" placeholder="选择有效期" style={{ width: '100%' }}>
-                  <Option value={7}>7天</Option>
-                  <Option value={30}>30天（月卡）</Option>
-                  <Option value={90}>90天（季卡）</Option>
+                  <Option value={7}>7天 </Option>
+                  <Option value={180}>180天（半年卡）</Option>
                   <Option value={365}>365天（年卡）</Option>
                 </Select>
               </Form.Item>

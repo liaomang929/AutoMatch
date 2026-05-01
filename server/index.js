@@ -31,6 +31,9 @@ app.use('/api/picks', picksRoute);
 
 // 根路由
 app.get('/', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+  }
   res.send(`
     <!DOCTYPE html>
     <html><head><meta charset="utf-8"><title>AutoMatch API</title></head>
@@ -45,6 +48,19 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
+
+// 生产环境：托管前端构建产物 + SPA 路由降级
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '..', 'client', 'dist');
+  app.use(express.static(clientDist));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/data')) {
+      res.sendFile(path.join(clientDist, 'index.html'));
+    } else {
+      next();
+    }
+  });
+}
 
 if (require.main === module) {
   app.listen(PORT, () => {
